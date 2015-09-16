@@ -1,18 +1,19 @@
 # CAFA-eval-lite
 A lite Matlab toolbox for evaluating protein function predictors (according to
-CAFA protocal)
+CAFA protocol)
 
 ## Basic data structure
 There are two types of basic data structures used widely in this toolbox:
 
 ### Ontology
 The ontology structure consists of the following fields:
-* `term`, which is an struct array having `id` and `name` corresponding to 
+* `term`, which is a `struct` array having `id` and `name` corresponding to 
   ontology term id and description of each term.
 * `DAG`, a sparse integer matrix encoding the relations between terms, i.e.,
   `DAG(i, j) = 1` indicates term `i` and `j` has the type `1` relation, while
 those relation types are encoded in `rel_code`.
-* `rel_code`
+* `rel_code`, is a cell array storing the types of relation used in this
+  structure, currently, only `is_a` and `part_of` are available.
 * `alt_list`, is a mapping table between alternative term id and approved term
   id.
 * `date`, the date when this ontology structure is created.
@@ -43,23 +44,24 @@ prediction scores.
 pfp_oabuild(ont, '/path/to/plain-text-annotation', '/more/files', ...);
 ```
 where `ont` is an ontology structure built using `pfp_ontbuild` and the
-following plain-text annotation files should have only two columns: 1) protein
-ID and 2) annotated term ID.
+following plain-text annotation files should have only two columns: 1)
+sequence (protein/gene) ID and 2) annotated term ID.
 
 ## Evaluation
 Considered as a *multi-label learning (MLL)* problem, protein function
 prediction requires a method to predict a score for an instance (protein or
-gene) with every possible label. Therefore, evaluating such a prediction results
+gene) for every possible label. Therefore, evaluating such a prediction results
 in comparing a prediction matrix and a "ground-truth" annotation matrix, both of
-size `n`-by-`m`, where `n` is the number of instances and `m` is the number of
-labels (terms in an ontology).
+which having size `n`-by-`m`, where `n` is the number of instances and `m` is
+the number of labels (terms in an ontology).
 
-Generally, there are two types of evaluation scheme: 1) sequence-centric and 2)
-term-centric. The former calculate a performance measure for each row first and
-then combine those ones to get an overall performance measure; while the latter
-calculates in a column-major manner.
+Generally, there are two types of evaluation schemes: 1) sequence-centric and 2)
+term-centric. The former calculates a performance measure for each row first and
+then combines those results to get an overall performance measure; while the
+latter calculates in a column-major manner followed by the combination step.
 
 One needs to specify which metric to use for each row (or column) and which
 method to use when combining those measures. In CAFA2, we used (weighted)
 F-measure, and (normalized) semantic distance for sequence-centric evaluation,
-and AUC is used for term-centric evaluation.
+and AUC is used for term-centric evaluation. And in both schemes, combination
+was done simply by averaging.
