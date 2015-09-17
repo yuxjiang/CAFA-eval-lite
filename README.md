@@ -65,3 +65,17 @@ method to use when combining those measures. In CAFA2, we used (weighted)
 F-measure, and (normalized) semantic distance for sequence-centric evaluation,
 and AUC is used for term-centric evaluation. And in both schemes, combination
 was done simply by averaging.
+
+## Baseline methods
+The lite toolbox also contains functions to build the two baseline methods used
+in CAFA evaluation, i.e., Naive and BLAST.
+
+* Naive predictions can be created by using `pfp_naive.m` which loads an
+  annotation structure and predicts a query protein according to the annotation
+frequency.
+
+* BLAST prediction can be created by using `pfp_blast.m`. The function depends
+  on an extra structure created from `pfp_importblastp.m` which, as the name
+indicates, imports output results from the `blastp` program (tested on v2.2.28+).
+(Note that we usually BLAST the test set proteins against the annotated training
+set proteins to obtain those BLAST hits.)
