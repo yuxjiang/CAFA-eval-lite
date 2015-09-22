@@ -160,7 +160,7 @@ function [plain_oa] = oaread(afiles)
   tm = {};
   for i = 1 : numel(afiles)
     fid  = fopen(afiles{i}, 'r');
-    data = textscan(fid, '%s%s', 'delimiter', '\t');
+    data = textscan(fid, '%s%s');
     fclose(fid);
 
     gp = [gp; data{1}];
@@ -180,4 +180,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Tue 22 Sep 2015 09:00:02 AM E
+% Last modified: Tue 22 Sep 2015 11:38:46 AM E
