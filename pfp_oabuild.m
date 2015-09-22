@@ -51,6 +51,7 @@ function [oa] = pfp_oabuild(ont, afile, varargin)
 %[>]pfp_ontbuild.m
 %[>]pfp_getterm.m
 %[>]pfp_annotprop.m
+%[>]pfp_eia.m
 % }}}
 
   % check inputs {{{
@@ -179,4 +180,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Fri 07 Aug 2015 03:12:33 PM E
+% Last modified: Tue 22 Sep 2015 09:00:02 AM E
