@@ -29,7 +29,8 @@ specific ontology:
 * `object`, is a set of objects having annotations (usually proteins or genes)
 * `ontology`, an ontology structure associated with this annotation set.
 * `annotation`, a sparse logical matrix indicating if object `i` is annotated
-  with term `j`.
+  with term `j`. Note that `i` is the i-th entry in `object` while `j` is the
+  j-th term of `{ontology.term.id}`.
 * `eia`, is an array of estimated information content on each term using this
   annotation data set.
 * `date`, is the date when this structure is created.
