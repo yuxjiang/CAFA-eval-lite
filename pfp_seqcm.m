@@ -114,9 +114,9 @@ function [cm] = pfp_seqcm(target, pred, oa, varargin)
   defaultTAU   = 0.00 : 0.01 : 1.00;
   defaultW     = 'equal';
 
-  addOptional(p, 'tau', defaultTAU, @(x) validateattributes(x, {'double'}, {'vector', '>=', 0, '<=', 1}));
-  addOptional(p, 'toi', defaultTOI, @(x) validateattributes(x, {'logical', 'char'}, {'nonempty'}));
-  addOptional(p, 'w', defaultW, @(x) validateattributes(x, {'double', 'char'}, {'nonempty'}));
+  addParameter(p, 'tau', defaultTAU, @(x) validateattributes(x, {'double'}, {'vector', '>=', 0, '<=', 1}));
+  addParameter(p, 'toi', defaultTOI, @(x) validateattributes(x, {'logical', 'char'}, {'nonempty'}));
+  addParameter(p, 'w', defaultW, @(x) validateattributes(x, {'double', 'char'}, {'nonempty'}));
 
   parse(p, varargin{:});
 
@@ -196,4 +196,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Sun 09 Aug 2015 04:03:48 PM E
+% Last modified: Wed 21 Oct 2015 06:24:28 PM E

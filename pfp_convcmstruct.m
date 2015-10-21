@@ -4,7 +4,7 @@ function [res] = pfp_convcmstruct(cmstruct, metric, varargin)
 %
 % [res] = PFP_CONVCMSTRUCT(cmstruct, metric);
 %
-%   Convert a confusion matrix struct (returned from pfp_seqcm.m) to a specific
+%   Converts a confusion matrix struct (returned from pfp_seqcm.m) to a specific
 %   confusion matrix derived metric (e.g. precision-recall curve).
 %
 % Input
@@ -47,8 +47,11 @@ function [res] = pfp_convcmstruct(cmstruct, metric, varargin)
 %
 % Dependency
 % ----------
-%[>]pfp_seqcm.m
 %[>]pfp_cmmetric.m
+%
+% See Also
+% --------
+%[>]pfp_seqcm.m
 % }}}
 
   % check inputs {{{
@@ -75,7 +78,7 @@ function [res] = pfp_convcmstruct(cmstruct, metric, varargin)
           reshape(full([cmstruct.cm(:, i).FP]), [], 1), ...
           reshape(full([cmstruct.cm(:, i).FN]), [], 1), ...
           reshape(full([cmstruct.cm(:, i).TP]), [], 1)];
-    res.metric{i} = pfp_cmmetric(cm, metric, varargin);
+    res.metric{i} = pfp_cmmetric(cm, metric, varargin{:});
   end
   res.tau     = cmstruct.tau;
   res.covered = (cmstruct.npp > 0);
@@ -87,4 +90,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University, Bloomington
-% Last modified: Tue 15 Sep 2015 02:55:23 PM E
+% Last modified: Wed 21 Oct 2015 06:34:46 PM E
