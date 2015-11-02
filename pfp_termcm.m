@@ -1,8 +1,8 @@
-function [cm] = pfp_termcm(target, pred, oa, ev_mode, varargin)
+function [cm] = pfp_termcm(target, pred, oa, evmode, varargin)
 %PFP_TERMEVAL Term-centric confusion matrices
 % {{{
 %
-% [cm] = PFP_TERMCM(target, pred, oa, ev_mode, varargin);
+% [cm] = PFP_TERMCM(target, pred, oa, evmode, varargin);
 %
 %   Calculate term-centric confusion matrices. It computes k matrices for each
 %   'target' sequence, where 'k' is the number of thresholds.
@@ -27,7 +27,7 @@ function [cm] = pfp_termcm(target, pred, oa, ev_mode, varargin)
 % oa:       The reference structure.
 %
 % [char]
-% ev_mode:  The mode of evaluation.
+% evmode:   The mode of evaluation.
 %           '1', 'full'     - averaged over the entire benchmark sets.
 %                               missing prediction are treated as 0.
 %           '2', 'partial'  - averaged over the predicted subset (partial).
@@ -95,8 +95,8 @@ function [cm] = pfp_termcm(target, pred, oa, ev_mode, varargin)
   end
   % }}}
 
-  % check the 4th input 'ev_mode' {{{
-  ev_mode = validatestring(ev_mode, {'1', 'full', '2', 'partial'}, '', 'ev_mode', 4);
+  % check the 4th input 'evmode' {{{
+  evmode = validatestring(evmode, {'1', 'full', '2', 'partial'}, '', 'evmode', 4);
   % }}}
   % }}}
 
@@ -111,7 +111,7 @@ function [cm] = pfp_termcm(target, pred, oa, ev_mode, varargin)
   % }}}
 
   % align 'pred' and 'oa' onto the given target list {{{
-  if ismember(ev_mode, {'2', 'partial'})
+  if ismember(evmode, {'2', 'partial'})
     npp_seq = sum(pred.score > 0.0, 2);
     pred.object(npp_seq > 0);
     target = intersect(pred.object(npp_seq > 0), target);
@@ -150,4 +150,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Wed 21 Oct 2015 06:24:14 PM E
+% Last modified: Mon 02 Nov 2015 02:57:30 PM E

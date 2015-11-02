@@ -1,15 +1,15 @@
-function [m] = pfp_cmavg(cm, metric, varargin)
+function [m] = pfp_cmavg(cmstruct, metric, varargin)
 %PFP_CMAVG Confusion matrix average
 % {{{
 %
-% [m] = PFP_CMAVG(cm, metric, varargin);
+% [m] = PFP_CMAVG(cmstruct, metric, varargin);
 %
 %   Computes the averaged metric from confusion matrices.
 %
 % Input
 % -----
 % [struct]
-% cm:       The confusion matrix structure.
+% cmstruct: The confusion matrix structure.
 %           (It can be obtained from pfp_seqcm.m, or pfp_termcm.m)
 %
 % [char]
@@ -45,13 +45,13 @@ function [m] = pfp_cmavg(cm, metric, varargin)
 % 'Q'       An n-by-1 indicator of qualified predictions. It won't affect
 %           the result in 'full' evaluation mode, however, in the 'partial'
 %           mode, only rows corresponding to TRUE bits are averaged.
-%           default: cm.npp > 1 (at least one positive predictions, see
+%           default: cmstruct.npp > 1 (at least one positive predictions, see
 %           pfp_seqcm.m or pfp_termcm.m for details)
 %
 % [char]
-% ev_mode:  The mode of evaluation. Only effective in "sequence-centered"
+% evmode:   The mode of evaluation. Only effective in "sequence-centered"
 %           evaluation, i.e., returned by pfp_seqcm.m rather than pfp_termcm.m.
-%           (indeed, 'ev_mode' has to be decided when calling pfp_termcm.m)
+%           (indeed, 'evmode' has to be decided when calling pfp_termcm.m)
 %           '1', 'full'     - averaged over the entire benchmark sets.
 %                             missing prediction are treated as 0.
 %           '2', 'partial'  - averaged over the predicted subset (partial).
@@ -59,7 +59,7 @@ function [m] = pfp_cmavg(cm, metric, varargin)
 %           default: 'full'
 %
 % [char]
-% avg_mode: The mode of averaging.
+% avgmode:  The mode of averaging.
 %           'macro' - macro-average, compute the metric over each confusion
 %                     matrix and then average the metric.
 %           'micro' - micro-average, average the confusion matrix, and then
@@ -87,9 +87,9 @@ function [m] = pfp_cmavg(cm, metric, varargin)
     error('pfp_cmavg:InputCount', 'Expected >= 2 inputs.');
   end
 
-  % check the 1st input 'cm' {{{
-  validateattributes(cm, {'struct'}, {'nonempty'}, '', 'cm', 1);
-  cms = cm.cm;
+  % check the 1st input 'cmstruct' {{{
+  validateattributes(cmstruct, {'struct'}, {'nonempty'}, '', 'cmstruct', 1);
+  cms = cmstruct.cm;
   [n, k] = size(cms);
   % }}}
 
@@ -103,32 +103,30 @@ function [m] = pfp_cmavg(cm, metric, varargin)
 
   defaultBETA     = 1;
   defaultORDER    = 2;
-  defaultQ        = reshape(cm.npp > 0, [], 1);
+  defaultQ        = reshape(cmstruct.npp > 0, [], 1);
   defaultEV_MODE  = 'full';
   defaultAVG_MODE = 'macro';
 
-  valid_ev_modes  = {'full', 'partial'};
-  valid_avg_modes = {'macro', 'micro'};
+  valid_evmodes   = {'1', '2', 'full', 'partial'};
+  valid_avgmodes = {'macro', 'micro'};
 
   addParameter(p, 'beta', defaultBETA, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'order', defaultORDER, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'Q', defaultQ, @(x) validateattributes(x, {'logical'}, {'ncols', 1, 'numel', n}));
-  % validatestring doesn't work for 'ev_mode' for some reason ...
-  % addParameter(p, 'ev_mode', defaultEV_MODE, @(x) validatestring(x, valid_ev_modes));
-  addParameter(p, 'ev_mode', defaultEV_MODE, @(x) ismember(x, valid_ev_modes));
-  addParameter(p, 'avg_mode', defaultAVG_MODE, @(x) ismember(x, valid_avg_modes));
+  addParameter(p, 'evmode', defaultEV_MODE, @(x) any(strcmpi(x, valid_evmodes)));
+  addParameter(p, 'avgmode', defaultAVG_MODE, @(x) any(strcmpi(x, valid_avgmodes)));
 
   parse(p, varargin{:});
   % }}}
 
   % sanity check for sequence-centered {{{
-  if strcmp(cm.centric, 'term') && ismember(metric, {'rm', 'nrm', 'sd', 'nsd'})
+  if strcmp(cmstruct.centric, 'term') && ismember(metric, {'rm', 'nrm', 'sd', 'nsd'})
     error('pfp_cmavg:IncompatibleInput', 'metric is not available in term-centered evaluation.');
   end
   % }}}
 
-  % select rows to average according to 'ev_mode' and 'Q' {{{
-  switch p.Results.ev_mode
+  % select rows to average according to 'evmode' and 'Q' {{{
+  switch p.Results.evmode
   case {'1', 'full'}
     % use the full matrix, nop
   case {'2', 'partial'}
@@ -140,26 +138,24 @@ function [m] = pfp_cmavg(cm, metric, varargin)
 
   % averaging {{{
   m = cell(1, k);
-  switch p.Results.avg_mode
+  switch p.Results.avgmode
   case 'macro'
     for i = 1 : k
       cm = [reshape(full([cms(:, i).TN]), [], 1), ...
             reshape(full([cms(:, i).FP]), [], 1), ...
             reshape(full([cms(:, i).FN]), [], 1), ...
-            reshape(full([cms(:, i).TP]), [], 1)];
+            reshape(full([cms(:, i).TP]), [], 1) ...
+      ];
       raw_m = pfp_cmmetric(cm, metric, 'beta', p.Results.beta, 'order', p.Results.order);
-      m{i} = zeros(1, size(raw_m, 2));
-      for j = 1 : size(raw_m, 2)
-        collect = raw_m(:, j);
-        m{i}(j) = mean(collect(~isnan(collect)));
-      end
+      m{i}  = nanmean(raw_m, 1);
     end
   case 'micro'
     for i = 1 : k
       cm = [full(mean([cms(:, i).TN])), ...
             full(mean([cms(:, i).FP])), ...
             full(mean([cms(:, i).FN])), ...
-            full(mean([cms(:, i).TP]))];
+            full(mean([cms(:, i).TP])) ...
+      ];
       m{i} = pfp_cmmetric(cm, metric, 'beta', p.Results.beta, 'order', p.Results.order);
     end
   otherwise
@@ -172,4 +168,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Mon 02 Nov 2015 02:38:13 PM E
+% Last modified: Mon 02 Nov 2015 03:37:09 PM E

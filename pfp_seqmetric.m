@@ -70,9 +70,9 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 %           column, make sure it's of the same dimension as 'target'.
 %
 % [char]
-% ev_mode:  The mode of evaluation. Only effective in "sequence-centered"
+% evmode:   The mode of evaluation. Only effective in "sequence-centered"
 %           evaluation, i.e., returned by pfp_seqcm.m rather than pfp_termcm.m.
-%           (indeed, 'ev_mode' has to be decided when calling pfp_termcm.m)
+%           (indeed, 'evmode' has to be decided when calling pfp_termcm.m)
 %           '1', 'full'     - averaged over the entire benchmark sets.
 %                             missing prediction are treated as 0.
 %           '2', 'partial'  - averaged over the predicted subset (partial).
@@ -80,7 +80,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 %           default: 'full'
 %
 % [char]
-% avg_mode: The mode of averaging.
+% avgmode:  The mode of averaging.
 %           'macro' - macro-average, compute the metric over each confusion
 %                     matrix and then average the metric.
 %           'micro' - micro-average, average the confusion matrix, and then
@@ -138,8 +138,8 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
   defaultEV_MODE  = 'full';
   defaultAVG_MODE = 'macro';
 
-  valid_ev_modes  = {'1', '2', 'full', 'partial'};
-  valid_avg_modes = {'macro', 'micro'};
+  valid_evmodes   = {'1', '2', 'full', 'partial'};
+  valid_avgmodes  = {'macro', 'micro'};
 
   addParameter(p, 'tau', defaultTAU, @(x) validateattributes(x, {'double'}, {'vector', '>=', 0, '<=', 1}));
   addParameter(p, 'toi', defaultTOI, @(x) validateattributes(x, {'logical', 'char'}, {'nonempty'}));
@@ -147,8 +147,8 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
   addParameter(p, 'beta', defaultBETA, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'order', defaultORDER, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'Q', defaultQ, @(x) validateattributes(x, {'char', 'logical'}, {}));
-  addParameter(p, 'ev_mode', defaultEV_MODE, @(x) ismember(x, valid_ev_modes));
-  addParameter(p, 'avg_mode', defaultAVG_MODE, @(x) ismember(x, valid_avg_modes));
+  addParameter(p, 'evmode', defaultEV_MODE, @(x) any(strcmpi(x, valid_evmodes)));
+  addParameter(p, 'avgmode', defaultAVG_MODE, @(x) any(strcmpi(x, valid_avgmodes)));
 
   parse(p, varargin{:});
   % }}}
@@ -184,26 +184,26 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
     'wpr',   'wpr'; ...
     'rm',    'rm'; ...
     'nrm',   'nrm'; ...
-    'fmax',  'f'; ...
-    'wfmax', 'wf'; ...
-    'smin',  'sd'; ...
-    'nsmin', 'nsd' ...
+    'fmax',  'pr'; ...
+    'wfmax', 'wpr'; ...
+    'smin',  'rm'; ...
+    'nsmin', 'nrm' ...
   };
   met = metric_map{strcmp(metric_map(:, 1), metric), 2};
   m = pfp_cmavg(cm, met, ...
     'beta',     p.Results.beta, ...
     'order',    p.Results.order, ...
     'Q',        Q, ...
-    'ev_mode',  p.Results.ev_mode, ...
-    'avg_mode', p.Results.avg_mode ...
+    'evmode',   p.Results.evmode, ...
+    'avgmode',  p.Results.avgmode ...
   );
   % }}}
 
   % post-processing {{{
   if ismember(metric, {'fmax', 'wfmax'})
-    m = max(cell2mat(reshape(m, [], 1)));
+    m = pfp_fmaxc(cell2mat(reshape(m, [], 1)), cm.tau);
   elseif ismember(metric, {'smin', 'nsmin'})
-    m = min(cell2mat(reshape(m, [], 1)));
+    m = pfp_sminc(cell2mat(reshape(m, [], 1)), cm.tau);
   else
     m = cell2mat(reshape(m, [], 1));
   end

@@ -17,7 +17,7 @@ pred = cafa_import('./BLAST_prediction.txt', MFO);
 % benchmark list should be compatible with each other.
 benchmark = pfp_loaditem('./MFO_benchmark.txt', 'char');
 
-% Now, suppose we'd like to do an "sequence-centric" evaluation, and calculate
+% Now, suppose we'd like to do an "sequence-centered" evaluation, and calculate
 % precision-recall curves.
 
 % make the confusion matrix structure
@@ -28,3 +28,11 @@ seq_pr = pfp_convcmstruct(cm, 'pr');
 
 % Now, 'seq_pr.metric' should have 101 precision-recall pairs (points) corresp.
 % to 101 thresholds from 0.00 to 1.00 at stepsize = 0.01;
+
+% Alternatively, with pfp_seqmetric.m, one can compute a single metric value in
+% the sequence-centered evaluation, directly from:
+% 1. a list of sequences
+% 2. a prediction structure
+% 3. a ground-truth annotation structure
+% say if one doesn't care those intermediate confusion matrices.
+fmax = pfp_seqmetric(benchmark, pred, oa, 'fmax');
