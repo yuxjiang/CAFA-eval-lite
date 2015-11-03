@@ -98,6 +98,8 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 %[>]pfp_roottermidx.m
 %[>]pfp_seqcm.m
 %[>]pfp_cmavg.m
+%[>]pfp_fmaxc.m
+%[>]pfp_sminc.m
 % }}}
 
   % check basic inputs {{{
