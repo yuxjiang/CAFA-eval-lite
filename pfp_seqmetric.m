@@ -10,7 +10,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 % -----
 % [cell]
 % target: A list of target objects.
-%         For those target sequences that are not in pred.object, their 
+%         For those target sequences that are not in pred.object, their
 %         predicted associtated scores for each term will be 0.00, as if they
 %         are not predicted.
 %
@@ -162,7 +162,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
   else
     w = p.Results.w;
   end
-    
+
   cm = pfp_seqcm(target, pred, oa, ...
     'tau', p.Results.tau, ...
     'toi', p.Results.toi, ...
@@ -179,7 +179,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
   else
     error('pfp_seqmetric:InvalidQ', 'Q must be either ''auto'' or a logical vector of the same length of ''target''.')
   end
-    
+
   % translate metrics
   metric_map = {...
     'pr',    'pr'; ...

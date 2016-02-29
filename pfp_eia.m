@@ -2,17 +2,23 @@ function [eia] = pfp_eia(DAG, A)
 %PFP_EIA Estimated information accretion
 % {{{
 %
-% [eia] = PFP_EIA(oa);
+% [eia] = PFP_EIA(DAG, A);
 %
 %   Estimates the information accretion for each term in the ontology.
 %
-%   Note:
-%   To avoid infinite 'eia', a pseudocount of one is added to each term.
+% Note
+% ----
+% To avoid infinite 'eia', a pseudocount of one is added to each term.
 %
 % Definition
 % ----------
 % Information accretion:
 % See the [Reference] below for details.
+%
+% Reference
+% ---------
+% W. Clark and P. Radivojac, Information theoretic evaluation of predicted
+% ontology annotations. Bioinformatics, 2013.
 %
 % Input
 % -----
@@ -28,11 +34,6 @@ function [eia] = pfp_eia(DAG, A)
 % ------
 % [double]
 % eia:  1 x m, an array of estimated information accretion.
-%
-% Reference
-% ---------
-% W. Clark and P. Radivojac, Information theoretic evaluation of predicted
-% ontology annotations. Bioinformatics, 2013.
 % }}}
 
   % check inputs {{{
@@ -43,18 +44,18 @@ function [eia] = pfp_eia(DAG, A)
   % check the 1st input 'DAG' {{{
   validateattributes(DAG, {'double'}, {'square'}, '', 'DAG', 1);
   m = size(DAG, 1);
-  % check the 1st input 'DAG' }}}
+  % }}}
 
   % check the 2nd input 'A' {{{
   validateattributes(A, {'logical'}, {'ncols', m}, '', 'A', 2);
-  % check the 2nd input 'A' }}}
-  % check inputs }}}
+  % }}}
+  % }}}
 
   % find annotated "sub-ontology" {{{
   has_seq = any(A, 1);
   subDAG  = DAG(has_seq, has_seq) ~= 0; % make it logical
   subA    = A(:, has_seq);
-  % find annotated "sub-ontology" }}}
+  % }}}
 
   % calculate eia for annotated sub-ontology {{{
   k      = size(subDAG, 1);
@@ -70,16 +71,16 @@ function [eia] = pfp_eia(DAG, A)
     S        = sum(support);
     subia(i) = sum(support & subA(:, i)) / S;
   end
-  % calculate eia for annotated sub-ontology }}}
+  % }}}
 
   % prepare output {{{
   eia          = zeros(1, m);
   eia(has_seq) = -log(subia);
-  % prepare output }}}}
+  % }}}
 return
 
 % -------------
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Tue 05 May 2015 11:23:44 AM E
+% Last modified: Mon 29 Feb 2016 01:17:46 PM E

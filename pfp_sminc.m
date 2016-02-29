@@ -7,7 +7,7 @@ function [smin, point, t] = pfp_sminc(curve, tau, order)
 %
 %   [smin, point, t] = PFP_SMINC(curve, tau, order);
 %
-%       Returns the minimum semantic distance of a RU-MI curve with a specific 
+%       Returns the minimum semantic distance of a RU-MI curve with a specific
 %       type of norm.
 %
 %       Note:
@@ -20,7 +20,7 @@ function [smin, point, t] = pfp_sminc(curve, tau, order)
 %   curve:  A k-by-2 RU-MI matrix (i.e. a curve)
 %
 %   [double]
-%   tau:    A 1-by-k vector of thresholds.
+%   tau:    A 1-by-k increasing thresholds.
 %
 %   (optional)
 %   [double]
@@ -60,7 +60,7 @@ function [smin, point, t] = pfp_sminc(curve, tau, order)
     % }}}
 
     % check the 2nd input 'tau' {{{
-    validateattributes(tau, {'double'}, {'numel', k}, '', 'tau', 2);
+    validateattributes(tau, {'double'}, {'numel', k, 'increasing'}, '', 'tau', 2);
     % }}}
 
     % check the 3rd input 'order' {{{
@@ -82,7 +82,7 @@ function [smin, point, t] = pfp_sminc(curve, tau, order)
     MI = curve(:, 2);
 
     % Note that f(x) = x^(1/order) is monotonic, so we don't need to compute it
-    % for every point. 
+    % for every point.
     sd_sq = RU .^ order + MI .^ order;
     smin_sq = min(sd_sq);
 
