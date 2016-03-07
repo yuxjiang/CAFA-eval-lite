@@ -47,3 +47,6 @@ The lite toolbox also contains functions to build the two baseline methods used 
 * Naive predictions can be created by using `pfp_naive.m` which loads an annotation structure and predicts a query protein according to the annotation frequency.
 
 * BLAST prediction can be created by using `pfp_blast.m`. The function depends on an extra structure created from `pfp_importblastp.m` which, as the name indicates, imports output results from the `blastp` program (tested on v2.2.28+).  (Note that we usually BLAST the test set proteins against the annotated training set proteins to obtain those BLAST hits.)
+
+# License
+The source code of this project is licensed under the MIT license.

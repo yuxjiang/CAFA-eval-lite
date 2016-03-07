@@ -142,7 +142,7 @@ function [cm] = pfp_termcm(target, pred, oa, evmode, varargin)
     cm.cm{i} = pfp_confmat(P(:, i), T(:, i), p.Results.tau);
   end
   cm.cm   = cell2mat(cm.cm);
-  cm.date = date;
+  cm.date = datestr(now, 'mm/dd/yyyy HH:MM');
   % }}}
 return
 
@@ -150,4 +150,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Mon 02 Nov 2015 02:57:30 PM E
+% Last modified: Sun 06 Mar 2016 07:49:27 PM E
