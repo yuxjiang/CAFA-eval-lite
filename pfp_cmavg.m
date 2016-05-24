@@ -1,6 +1,5 @@
 function [m] = pfp_cmavg(cmstruct, metric, varargin)
 %PFP_CMAVG Confusion matrix average
-% {{{
 %
 % [m] = PFP_CMAVG(cmstruct, metric, varargin);
 %
@@ -14,16 +13,16 @@ function [m] = pfp_cmavg(cmstruct, metric, varargin)
 %
 % [char]
 % metric:   The metric need to be averaged. Must be one of the following:
-%           'pr'    - precision, recall
-%           'wpr'   - weighted precision, recall
-%         * 'rm'    - RU, MI
-%         * 'nrm'   - normalized RU, MI
-%           'f'     - F-measure
-%           'wf'    - weighted F-measure
-%         * 'sd'    - semantic distance
-%         * 'nsd'   - normalized semantic distance
-%           'ss'    - sensitivity, 1 - specificity (points on ROC)
-%           'acc'   - accuracy
+%           'pr'  - precision, recall
+%           'wpr' - weighted precision, recall
+%         * 'rm'  - RU, MI
+%         * 'nrm' - normalized RU, MI
+%           'f'   - F-measure
+%           'wf'  - weighted F-measure
+%         * 'sd'  - semantic distance
+%         * 'nsd' - normalized semantic distance
+%           'ss'  - sensitivity, 1 - specificity (points on ROC)
+%           'acc' - accuracy
 %
 %         * Note: starred (*) metrics are only available in "sequence-centered"
 %           evaluation. Since information accretion makes no sense in
@@ -80,22 +79,19 @@ function [m] = pfp_cmavg(cmstruct, metric, varargin)
 % --------
 %[>]pfp_seqcm.m
 %[>]pfp_termcm.m
-% }}}
 
   % check inputs {{{
   if nargin < 2
     error('pfp_cmavg:InputCount', 'Expected >= 2 inputs.');
   end
 
-  % check the 1st input 'cmstruct' {{{
+  % cmstruct
   validateattributes(cmstruct, {'struct'}, {'nonempty'}, '', 'cmstruct', 1);
   cms = cmstruct.cm;
   [n, k] = size(cms);
-  % }}}
 
-  % check the 2nd input 'metric' {{{
-  validatestring(metric, {'pr', 'wpr', 'rm', 'nrm', 'f', 'wf', 'sd', 'nsd', 'ss', 'acc'}, '', 'metric', 2);
-  % }}}
+  % metric
+  metric = validatestring(metric, {'pr', 'wpr', 'rm', 'nrm', 'f', 'wf', 'sd', 'nsd', 'ss', 'acc'}, '', 'metric', 2);
   % }}}
 
   % parse additional inputs {{{
@@ -168,4 +164,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Mon 02 Nov 2015 03:37:09 PM E
+% Last modified: Tue 24 May 2016 02:18:54 PM E

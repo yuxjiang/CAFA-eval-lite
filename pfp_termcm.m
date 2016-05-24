@@ -1,6 +1,5 @@
 function [cm] = pfp_termcm(target, pred, oa, evmode, varargin)
 %PFP_TERMEVAL Term-centric confusion matrices
-% {{{
 %
 % [cm] = PFP_TERMCM(target, pred, oa, evmode, varargin);
 %
@@ -15,54 +14,40 @@ function [cm] = pfp_termcm(target, pred, oa, evmode, varargin)
 % Input
 % -----
 % [cell]
-% target:   A list of target objects.
-%           For those target sequences that are not in pred.object, their
-%           predicted associtated scores for each term will be 0.00, as if they
-%           are not predicted.
+% target: A list of target objects.
+%         For those target sequences that are not in pred.object, their
+%         predicted associtated scores for each term will be 0.00, as if they
+%         are not predicted.
 %
 % [struct]
-% pred:     The prediction structure.
+% pred:   The prediction structure.
 %
 % [struct]
-% oa:       The reference structure.
+% oa:     The reference structure.
 %
 % [char]
-% evmode:   The mode of evaluation.
-%           '1', 'full'     - averaged over the entire benchmark sets.
-%                               missing prediction are treated as 0.
-%           '2', 'partial'  - averaged over the predicted subset (partial).
+% evmode: The mode of evaluation.
+%         '1', 'full'     - averaged over the entire benchmark sets.
+%                             missing prediction are treated as 0.
+%         '2', 'partial'  - averaged over the predicted subset (partial).
 %
 % (optional) Name-Value pairs
 % [double]
-% 'tau'     An array of thresholds.
-%           default: 0.00 : 0.01 : 1.00 (i.e. 0.00, 0.01, ..., 0.99, 1.00)
+% 'tau'   An array of thresholds.
+%         default: 0.00 : 0.01 : 1.00 (i.e. 0.00, 0.01, ..., 0.99, 1.00)
 %
 % Output
 % ------
 % [struct]
 % cm: The structure of results.
-%
-%     [char]
-%     .centric    'term'
-%
-%     [cell]
-%     .object     A n-by-1 array of (char) object ID.
-%
-%     [struct]
-%     .term       A 1-by-m array of (char) term ID.
-%
-%     [double]
-%     .tau        A 1-by-k array of thresholds.
-%
-%     [struct]
-%     .cm         An m-by-k struct array of confusion matrices.
-%
-%     [double]
-%     .npp        An 1-by-m array of number of positive predictions for
-%                 each term.
-%
-%     [char]
-%     .date       The date whtn this evaluation is performed.
+%     .centric  [char]    'term'
+%     .object   [cell]    A n-by-1 array of (char) object ID.
+%     .term     [struct]  A 1-by-m array of (char) term ID.
+%     .tau      [double]  A 1-by-k array of thresholds.
+%     .cm       [struct]  An m-by-k struct array of confusion matrices.
+%     .npp      [double]  An 1-by-m array of number of positive predictions for
+%                         each term.
+%     .date     [char]    The date whtn this evaluation is performed.
 %
 % Dependency
 % ----------
@@ -73,40 +58,32 @@ function [cm] = pfp_termcm(target, pred, oa, evmode, varargin)
 % See Also
 % --------
 %[>]pfp_oabuild.m
-% }}}
 
   % check basic inputs {{{
   if nargin < 4
     error('pfp_termcm:InputCount', 'Expected >= 4 inputs.');
   end
 
-  % check the 1st input 'target' {{{
+  % target
   validateattributes(target, {'cell'}, {'nonempty'}, '', 'target', 1);
-  % }}}
 
-  % check the 2nd input 'pred' {{{
+  % pred
   validateattributes(pred, {'struct'}, {'nonempty'}, '', 'pred', 2);
-  % }}}
 
-  % check the 3rd input 'oa' {{{
+  % oa
   validateattributes(oa, {'struct'}, {'nonempty'}, '', 'oa', 3);
   if numel(pred.ontology.term) ~= numel(oa.ontology.term) || ~all(strcmp({pred.ontology.term.id}, {oa.ontology.term.id}))
     error('pfp_termeval:InputErr', 'Ontology mismatch.');
   end
-  % }}}
 
-  % check the 4th input 'evmode' {{{
+  % evmode
   evmode = validatestring(evmode, {'1', 'full', '2', 'partial'}, '', 'evmode', 4);
-  % }}}
   % }}}
 
   % parse and check extra inputs {{{
   p = inputParser;
-
   defaultTAU   = 0.00 : 0.01 : 1.00;
-
   addParameter(p, 'tau', defaultTAU, @(x) validateattributes(x, {'double'}, {'vector', '>=', 0, '<=', 1}));
-
   parse(p, varargin{:})
   % }}}
 
@@ -150,4 +127,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Sun 06 Mar 2016 07:49:27 PM E
+% Last modified: Tue 24 May 2016 02:22:00 PM E

@@ -1,6 +1,5 @@
 function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
 %CAFA_EVAL_SEQ_CURVE CAFA evaluation sequence-centric curve
-% {{{
 %
 % [ev] = CAFA_EVAL_SEQ_CURVE(id, bm, preeval, md);
 %
@@ -21,35 +20,27 @@ function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
 % input
 % -----
 % [char]
-% id:       a string for model id.
+% id:       A string for model id.
 %
 % [char or cell]
-% bm:       a benchmark filename or a list of benchmark target ids.
+% bm:       A benchmark filename or a list of benchmark target ids.
 %
 % [struct]
-% preeval:  the pre-computed curve per sequence.
-%           [cell of char]
-%           .centric  - should always be 'sequence' (not used)
-%
-%           .object   - n-by-1 sequence id
-%
-%           [cell of n-by-2 double]
-%           .metric   - 1-by-k, consists of k sets of points, where 'k' is the 
-%                       number of distinct thresholds. In most cases, k = 101,
-%                       corresponding to 101 thresholds:
-%
-%                       tau = 0.00 : 0.01 : 1.00
-%
-%                       Each cell contains a n-by-2 double array, corresponding
-%                       to n points at that threshold.
-%
-%           [double]
-%           .tau      - A 1-by-k array of thresholds. (not used)
-%           
-%           [logical]
-%           .covered  - n-by-1 indicator of if sequence i is predicted by the
-%                       model.
-%
+% preeval:  The pre-computed curve per sequence.
+%           .centric  [char]     'sequence' (not used)
+%           .object   [cell]     An n-by-1 array of (char) object ID.
+%           .metric   [cell]     A 1-by-k cell of converted metrics.
+%                                It consists of k sets of points, where 'k' is
+%                                the number of distinct thresholds. In most
+%                                cases, k = 101, each of which corresponds a
+%                                thresholds: tau = 0.00:0.01:1.00. Each cell
+%                                contains an n-by-2 double array, corresponding
+%                                to n points at that threshold.
+%           .tau      [double]   A 1-by-k array of thresholds. (not used)
+%           .covered  [logical]  A n-by-1 logical array indicating if the
+%                                corresponding object is predicted ("covered")
+%                                by the model.
+%           .date     [char]     The date when this struct is built.
 %           See pfp_convcmstruct.m
 %
 % [char]
@@ -62,54 +53,37 @@ function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
 % ------
 % [struct]
 % ev: The returning structure for each model:
-%
-%     [char]
-%     .id         The model name, used for naming files.
-%
-%     [double]
-%     .curve      k-by-2, points on that curve.
-%
-%     [double]
-%     .tau        1-by-k, the corresp. thresholds.
-%
-%     [double]
-%     .ncovered   scalar, number of covered proteins in 'bm'.
-%
-%     [double]
-%     .coverage   scalar, coverage of the model.
-%
-%     [char]
-%     .mode       evaluation mode. 'full' or 'partial'
+%     .id       [char]    The model name, used for naming files.
+%     .curve    [double]  k-by-2, points on that curve.
+%     .tau      [double]  1-by-k, the corresp. thresholds.
+%     .ncovered [double]  scalar, number of covered proteins in 'bm'.
+%     .coverage [double]  scalar, coverage of the model.
+%     .mode     [char]    evaluation mode. 'full' or 'partial'
 %
 % Dependency
 % ----------
 %[>]pfp_loaditem.m
 %[>]pfp_convcmstruct.m
-% }}}
 
   % check inputs {{{
   if nargin ~= 4
     error('cafa_eval_seq_curve:InputCount', 'Expected 4 inputs.');
   end
 
-  % check the 1st input 'id' {{{
+  % id
   validateattributes(id, {'char'}, {'nonempty'}, '', 'id', 1);
-  % }}}
 
-  % check the 2nd input 'bm' {{{
+  % bm
   validateattributes(bm, {'char', 'cell'}, {'nonempty'}, '', 'bm', 2);
   if ischar(bm) % load the benchmark if a file name is given
     bm = pfp_loaditem(bm, 'char');
   end
-  % }}}
 
-  % check the 3rd input 'preeval' {{{
+  % preeval
   validateattributes(preeval, {'struct'}, {'nonempty'}, '', 'preeval', 3);
-  % }}}
 
-  % check the 4th input 'md' {{{
+  % md
   md = validatestring(md, {'1', 'full', '2', 'partial'}, '', 'md', 4);
-  % }}}
   % }}}
 
   % preparation {{{
@@ -118,7 +92,7 @@ function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
   ev.id    = id;
   ev.curve = zeros(k, 2);
   ev.tau   = reshape(preeval.tau, 1, []);
-  
+
   [~, ev_index] = ismember(bm, preeval.object);
   ev.ncovered = sum(preeval.covered(ev_index));
   ev.coverage = ev.ncovered / numel(bm);
@@ -137,7 +111,6 @@ function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
   % }}}
 
   % averaging {{{
-
   % Note
   % ----
   % For (weighted) precision-recall, (weighted) precision could be NaN which
@@ -146,7 +119,7 @@ function [ev] = cafa_eval_seq_curve(id, bm, preeval, md)
   %
   % But for (weighted) recall as well as (normalized) RU, (normalized) MI, they
   % shall never have NaN values.
-  % 
+  %
   % In short, we will always use 'nanmean' to avoid this issue.
   for i = 1 : k
     ev.curve(i, :) = nanmean(preeval.metric{i}(ev_index, :), 1);
@@ -158,4 +131,4 @@ return
 % Yuxiang Jiang (yuxjiang@indiana.edu)
 % Department of Computer Science
 % Indiana University Bloomington
-% Last modified: Tue 15 Sep 2015 02:57:54 PM E
+% Last modified: Mon 23 May 2016 04:18:12 PM E

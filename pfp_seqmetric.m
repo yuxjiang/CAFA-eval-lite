@@ -1,6 +1,5 @@
 function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 %PFP_SEQMETRIC Sequence-centered metric
-% {{{
 %
 % [m] = PFP_SEQMETRIC(target, pred, oa, metric, varargin);
 %
@@ -34,21 +33,19 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 % (optional) Name-Value pairs
 % [double]
 % 'tau'     An array of thresholds.
-%           default: 0.00 : 0.01 : 1.00 (i.e. 0.00, 0.01, ..., 0.99, 1.00)
+%           default: 0.00:0.01:1.00 (i.e. 0.00, 0.01, ..., 0.99, 1.00)
 %
 % [logical or char]
 % 'toi'     A binary vector indicating "terms of interest".
 %           Note that the following special short-hand tokens are also allowed.
-%           'all'       - all terms
-%           'noroot'    - exclude root term
+%           'all'     - all terms
+%           'noroot'  - exclude root term
 %           default: 'noroot'
 %
-% [double or char]
-% 'w'       A weight vector over terms.
-%           Note that the following special short-hand tokens are also allowed.
-%           'equal'     - equal weights, regular confusion matrix.
-%           'eia'       - weighted by estimated information content.
-%           default: 'equal'
+% [double]
+% 'w'       A weight vector over terms. Note that an empty vector implies equal
+%           weights.
+%           default: []
 %
 % [double]
 % 'beta'    Used in F_{beta}-measure.
@@ -91,7 +88,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 % Output
 % ------
 % [cell]
-% m:        The resulting metric of interest.
+% m:  The resulting metric of interest.
 %
 % Dependency
 % ----------
@@ -100,32 +97,27 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 %[>]pfp_cmavg.m
 %[>]pfp_fmaxc.m
 %[>]pfp_sminc.m
-% }}}
 
   % check basic inputs {{{
   if nargin < 4
     error('pfp_seqmetric:InputCount', 'Expected >= 4 inputs.');
   end
 
-  % check the 1st input 'target' {{{
+  % target
   validateattributes(target, {'cell'}, {'nonempty'}, '', 'target', 1);
-  % }}}
 
-  % check the 2nd input 'pred' {{{
+  % pred
   validateattributes(pred, {'struct'}, {'nonempty'}, '', 'pred', 2);
-  % }}}
 
-  % check the 3rd input 'oa' {{{
+  % oa
   validateattributes(oa, {'struct'}, {'nonempty'}, '', 'oa', 3);
   if numel(pred.ontology.term) ~= numel(oa.ontology.term) || ~all(strcmp({pred.ontology.term.id}, {oa.ontology.term.id}))
     error('pfp_seqmetric:InputErr', 'Ontology mismatch.');
   end
-  % }}}
 
-  % check the 4th input 'metric' {{{
+  % metric
   valid_metrics = {'pr', 'wpr', 'rm', 'nrm', 'fmax', 'wfmax', 'smin', 'nsmin'};
   metric = validatestring(metric, valid_metrics);
-  % }}}
   % }}}
 
   % check optional inputs {{{
@@ -133,7 +125,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 
   defaultTAU      = 0.00 : 0.01 : 1.00;
   defaultTOI      = 'noroot';
-  defaultW        = 'equal';
+  defaultW        = [];
   defaultBETA     = 1.0;
   defaultORDER    = 2.0;
   defaultQ        = 'auto';
@@ -145,7 +137,7 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
 
   addParameter(p, 'tau', defaultTAU, @(x) validateattributes(x, {'double'}, {'vector', '>=', 0, '<=', 1}));
   addParameter(p, 'toi', defaultTOI, @(x) validateattributes(x, {'logical', 'char'}, {'nonempty'}));
-  addParameter(p, 'w', defaultW, @(x) validateattributes(x, {'double', 'char'}, {'nonempty'}));
+  addParameter(p, 'w', defaultW, @(x) validateattributes(x, {'double'}, {}));
   addParameter(p, 'beta', defaultBETA, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'order', defaultORDER, @(x) validateattributes(x, {'double'}, {'real', 'positive'}));
   addParameter(p, 'Q', defaultQ, @(x) validateattributes(x, {'char', 'logical'}, {}));
@@ -156,18 +148,10 @@ function [m] = pfp_seqmetric(target, pred, oa, metric, varargin)
   % }}}
 
   % call to pfp_seqcm {{{
-  % determine 'w' "smartly"
-  if ismember(metric, {'wpr', 'wfmax', 'rm', 'nrm', 'smin', 'nsmin'}) && strcmp(p.Results.w, defaultW)
-    w = 'eia';
-  else
-    w = p.Results.w;
+  if ismember(metric, {'wpr', 'wfmax', 'rm', 'nrm', 'smin', 'nsmin'}) && isempty(p.Results.w)
+    error('pfp_seqmetric:MissingW', 'Provide a weight vector ''w'' to compute this metric');
   end
-
-  cm = pfp_seqcm(target, pred, oa, ...
-    'tau', p.Results.tau, ...
-    'toi', p.Results.toi, ...
-    'w',   w ...
-  );
+  cm = pfp_seqcm(target, pred, oa, 'tau', p.Results.tau, 'toi', p.Results.toi, 'w', p.Results.w);
   % }}}
 
   % call to pfp_cmavg {{{
